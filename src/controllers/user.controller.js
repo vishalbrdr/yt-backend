@@ -9,7 +9,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
     const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
 
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
@@ -148,7 +148,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
     req.user._id,
     {
       $set: {
-        reqfreshToken: undefined,
+        refreshToken: undefined,
       },
     },
     {
@@ -169,16 +169,25 @@ export const logoutUser = asyncHandler(async (req, res) => {
 });
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
-  const incomingRefreshToken =
-    req.cookies.refreshToken || req.body.refreshToken;
-
-  if (!incomingRefreshToken) throw new ApiError(401, "unauthorized request");
-
   try {
+    const incomingRefreshToken =
+      req.cookies.refreshToken || req.body.refreshToken;
+
+    if (!incomingRefreshToken) {
+      return res
+        .status(401)
+        .json(
+          new ApiError(401, "invalid refresh token", ["refresh token is invalid"])
+        );
+    }
+
+    console.log("logged");
     const decodedToken = jwt.verify(
       incomingRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
+
+    console.log(decodedToken);
 
     const user = await User.findById(decodedToken?._id);
 
