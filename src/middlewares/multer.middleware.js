@@ -2,7 +2,7 @@ import multer from "multer";
 import fs from "fs";
 
 const storage = multer.diskStorage({
-  destination: function (_, _, cb) {
+  destination: function (_, __, cb) {
     const destinationDir = "./public/tmp";
 
     // Create the destination directory if it doesn't exist

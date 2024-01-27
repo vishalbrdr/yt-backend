@@ -23,4 +23,17 @@ const uploadOnCloudinary = async (localFilePath) => {
   }
 };
 
-export { uploadOnCloudinary };
+const deleteFromCloudinary = async (oldImageUrl) => {
+  try {
+    if (!oldImageUrl) {
+    }
+    const match = oldImageUrl.match(/\/([^\/]+)\.([a-zA-Z0-9]+)$/);
+    const imageName = match ? match[1] : null;
+    const response = await cloudinary.uploader.destroy(imageName);
+    return response;
+  } catch (error) {
+    return null;
+  }
+};
+
+export { uploadOnCloudinary, deleteFromCloudinary };
